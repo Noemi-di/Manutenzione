@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 #import seaborn as sns #per disegnare grafici statistici
 
 # Percorso file Excel
-percorso_file = r'C:\Users\Utente\Desktop\fermitot.xlsx'
+percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Desktop\fermitot.xlsx'
 linea_da_analizzare = input ('Quale linea analizzo?')
 macchina_rul = input ('Per quale macchina desideri calcolare il RUL? ')
 
@@ -71,7 +71,7 @@ try:
     # Converti la colonna 'Data turno' al solo formato data
     fermi_accorpati[nome_colonna_data_turno] = pd.to_datetime(fermi_accorpati[nome_colonna_data_turno], errors='coerce').dt.date
     
-    nome_foglio_scrittura_fermi_accorpati = f'fermi_{linea_da_analizzare}'
+    nome_foglio_scrittura_fermi_accorpati = f'fermi_linea_{linea_da_analizzare}'
 
     # === Periodo analizzato (basato su dati accorpati) ===
     totale_fermi = len(fermi_accorpati)

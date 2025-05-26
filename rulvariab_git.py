@@ -18,7 +18,7 @@ nome_colonna_stato_pezzo = 'STATO PEZZO'
 nome_colonna_classe = 'CLASSE'
 nome_colonna_minuti = 'MINUTI'
 
-# Nomi fogli output
+# Nomi fogli output da scrivere
 nome_foglio_scrittura_fermi_accorpati = 'fermi_accorpati_per_macchina'
 nome_foglio_scrittura_analisi_macchina = 'analisi_fermi_per_macchina'
 nome_foglio_scrittura_analisi_pezzo = 'analisi_fermi_per_pezzo'

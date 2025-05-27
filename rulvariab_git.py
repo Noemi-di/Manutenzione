@@ -84,8 +84,8 @@ try:
         numero_totale_fermi=(nome_colonna_pezzo, 'count'),
         tempo_totale_fermo=(nome_colonna_minuti, 'sum')
     ).reset_index()
-    analisi_fermi_macchina['frequenza_guasto_giorno'] = analisi_fermi_macchina['numero_totale_fermi'] / durata_periodo_giorni
-    analisi_fermi_macchina['MTBF'] = 1 / analisi_fermi_macchina['frequenza_guasto_giorno']
+    analisi_fermi_macchina['frequenza_guasto (g)'] = analisi_fermi_macchina['numero_totale_fermi'] / durata_periodo_giorni
+    analisi_fermi_macchina['MTBF'] = 1 / analisi_fermi_macchina['frequenza_guasto (g)']
     analisi_fermi_macchina = analisi_fermi_macchina.sort_values(by='tempo_totale_fermo', ascending=False)
 
     # === Analisi per pezzo ===
@@ -93,8 +93,8 @@ try:
         numero_totale_fermi=(nome_colonna_minuti, 'count'),
         tempo_totale_fermo=(nome_colonna_minuti, 'sum')
     ).reset_index()
-    analisi_fermi_pezzo['frequenza_guasto_giorno'] = analisi_fermi_pezzo['numero_totale_fermi'] / durata_periodo_giorni
-    analisi_fermi_pezzo['MTBF'] = 1 / analisi_fermi_pezzo['frequenza_guasto_giorno']
+    analisi_fermi_pezzo['frequenza_guasto (g)'] = analisi_fermi_pezzo['numero_totale_fermi'] / durata_periodo_giorni
+    analisi_fermi_pezzo['MTBF'] = 1 / analisi_fermi_pezzo['frequenza_guasto (g)']
     analisi_fermi_pezzo = analisi_fermi_pezzo.sort_values(by='tempo_totale_fermo', ascending=False)
 
     # === Calcolo e creazione foglio RUL per la macchina specificata da macchina_rul ===

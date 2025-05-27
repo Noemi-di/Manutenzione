@@ -4,9 +4,9 @@ import matplotlib.pyplot as plt
 #import seaborn as sns #per disegnare grafici statistici
 
 # Percorso file Excel
-percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Desktop\fermitot.xlsx'
+percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Desktop\Analisi_fermi.xlsx'
 linea_da_analizzare = input ('Quale linea analizzo?')
-macchina_rul = input ('Per quale macchina desideri calcolare il RUL? ')
+macchina_rul = input ('Per quale macchina desideri calcolare variabilità della RUL? ')
 
 # Nomi colonne
 nome_colonna_data_fermo = 'DATA FERMO'
@@ -22,17 +22,18 @@ nome_colonna_minuti = 'MINUTI'
 nome_foglio_scrittura_fermi_accorpati = 'fermi_accorpati_per_macchina'
 nome_foglio_scrittura_analisi_macchina = 'analisi_fermi_per_macchina'
 nome_foglio_scrittura_analisi_pezzo = 'analisi_fermi_per_pezzo'
+nome_foglio_scrittura_analisi_classe = 'analisi_fermi_per_classe'
 #nome_foglio_scrittura_analisi_rul = '' è ora dinamico, quindi non è più una costante qui
 
 # Nome foglio input
-nome_foglio_lettura = 'analisi_fermi_per_macchina'
+nome_foglio_lettura = 'Estraz_Ev'
 
 try:
     # Leggi il foglio Excel
     df = pd.read_excel(percorso_file, sheet_name=nome_foglio_lettura)
 
     # Filtra solo i dati della linea richiesta
-    #df = df[df[nome_colonna_linea].astype(str).str.strip() == linea_da_analizzare.strip()]
+    df = df[df[nome_colonna_linea].astype(str).str.strip() == linea_da_analizzare.strip()]
 
     # Verifica se ci sono dati
     if df.empty:
@@ -45,8 +46,8 @@ try:
         if col not in df.columns:
             raise KeyError(f"La colonna '{col}' non è stata trovata nel foglio '{nome_foglio_lettura}'.")
         
-    #1111111111111111111111111111111 
-    print("dati input trovati")
+# stato processamento programma
+    print("loading 25%")
 
     # Pulizia dei dati
     df = df.dropna(subset=[nome_colonna_minuti, nome_colonna_macchina, nome_colonna_pezzo]) # rimuove le righe con valori mancanti
@@ -73,6 +74,7 @@ try:
     
     nome_foglio_scrittura_fermi_accorpati = f'fermi_linea_{linea_da_analizzare}'
 
+
     # === Periodo analizzato (basato su dati accorpati) ===
     totale_fermi = len(fermi_accorpati)
     data_inizio = fermi_accorpati[nome_colonna_data_fermo].min()
@@ -80,12 +82,13 @@ try:
     durata_periodo_giorni = (data_fine - data_inizio).days + 1
 
      # === Analisi per macchina ===
+     # df_macchina_rul_data = fermi_accorpati[fermi_accorpati[nome_colonna_macchina] == macchina_rul].copy()
     analisi_fermi_macchina = fermi_accorpati.groupby(nome_colonna_macchina).agg(
         numero_totale_fermi=(nome_colonna_pezzo, 'count'),
         tempo_totale_fermo=(nome_colonna_minuti, 'sum')
     ).reset_index()
-    analisi_fermi_macchina['frequenza_guasto_giorno'] = analisi_fermi_macchina['numero_totale_fermi'] / durata_periodo_giorni
-    analisi_fermi_macchina['MTBF'] = 1 / analisi_fermi_macchina['frequenza_guasto_giorno']
+    analisi_fermi_macchina['frequenza_guasto (g)'] = analisi_fermi_macchina['numero_totale_fermi'] / durata_periodo_giorni
+    analisi_fermi_macchina['MTBF (g)'] = 1 / analisi_fermi_macchina['frequenza_guasto (g)']
     analisi_fermi_macchina = analisi_fermi_macchina.sort_values(by='tempo_totale_fermo', ascending=False)
 
     # === Analisi per pezzo ===
@@ -93,11 +96,24 @@ try:
         numero_totale_fermi=(nome_colonna_minuti, 'count'),
         tempo_totale_fermo=(nome_colonna_minuti, 'sum')
     ).reset_index()
-    analisi_fermi_pezzo['frequenza_guasto_giorno'] = analisi_fermi_pezzo['numero_totale_fermi'] / durata_periodo_giorni
-    analisi_fermi_pezzo['MTBF'] = 1 / analisi_fermi_pezzo['frequenza_guasto_giorno']
+    analisi_fermi_pezzo['frequenza_guasto (g)'] = analisi_fermi_pezzo['numero_totale_fermi'] / durata_periodo_giorni
+    analisi_fermi_pezzo['MTBF (g)'] = 1 / analisi_fermi_pezzo['frequenza_guasto (g)']
     analisi_fermi_pezzo = analisi_fermi_pezzo.sort_values(by='tempo_totale_fermo', ascending=False)
 
+# stato processamento programma
+    print("loading 50%")
+
+        # === Analisi per classe ===
+    analisi_fermi_classe = fermi_accorpati.groupby([nome_colonna_macchina,nome_colonna_pezzo, nome_colonna_classe]).agg(
+        numero_totale_fermi=(nome_colonna_minuti, 'count'),
+        tempo_totale_fermo=(nome_colonna_minuti, 'sum')
+    ).reset_index()
+    analisi_fermi_classe['frequenza_guasto (g)'] = analisi_fermi_classe['numero_totale_fermi'] / durata_periodo_giorni
+    analisi_fermi_classe['MTBF (g)'] = 1 / analisi_fermi_classe['frequenza_guasto (g)']
+    analisi_fermi_classe = analisi_fermi_classe.sort_values(by='tempo_totale_fermo', ascending=False)
+
     # === Calcolo e creazione foglio RUL per la macchina specificata da macchina_rul ===
+
     df_macchina_rul_data = fermi_accorpati[fermi_accorpati[nome_colonna_macchina] == macchina_rul].copy()
 
     if not df_macchina_rul_data.empty:
@@ -127,14 +143,17 @@ try:
     fogli_da_rimuovere = [
         nome_foglio_scrittura_fermi_accorpati,
         nome_foglio_scrittura_analisi_macchina,
-        nome_foglio_scrittura_analisi_pezzo
+        nome_foglio_scrittura_analisi_pezzo,
+        nome_foglio_scrittura_analisi_classe
     
     ]
     if 'df_finale_rul' in locals(): # Rimuovi il foglio RUL specifico solo se è stato creato
         if nome_foglio_scrittura_analisi_rul_specifica in workbook.sheetnames:
             std = workbook[nome_foglio_scrittura_analisi_rul_specifica]
             workbook.remove(std)
-    
+    # stato processamento programma
+    print("loading 75%")
+
     for nome_foglio in fogli_da_rimuovere:
         if nome_foglio in workbook.sheetnames:
             std = workbook[nome_foglio]
@@ -146,6 +165,7 @@ try:
         fermi_accorpati.to_excel(writer, sheet_name=nome_foglio_scrittura_fermi_accorpati, index=False)
         analisi_fermi_macchina.to_excel(writer, sheet_name=nome_foglio_scrittura_analisi_macchina, index=False)
         analisi_fermi_pezzo.to_excel(writer, sheet_name=nome_foglio_scrittura_analisi_pezzo, index=False)
+        analisi_fermi_classe.to_excel(writer, sheet_name=nome_foglio_scrittura_analisi_classe, index=False)
         if 'df_finale_rul' in locals(): # Scrivi il foglio RUL solo se è stato creato
             df_finale_rul.to_excel(writer, sheet_name=nome_foglio_scrittura_analisi_rul_specifica, index=False)
 

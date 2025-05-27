@@ -25,14 +25,14 @@ nome_foglio_scrittura_analisi_pezzo = 'analisi_fermi_per_pezzo'
 #nome_foglio_scrittura_analisi_rul = '' è ora dinamico, quindi non è più una costante qui
 
 # Nome foglio input
-nome_foglio_lettura = 'Estraz_Ev'
+nome_foglio_lettura = 'analisi_fermi_per_macchina'
 
 try:
     # Leggi il foglio Excel
     df = pd.read_excel(percorso_file, sheet_name=nome_foglio_lettura)
 
     # Filtra solo i dati della linea richiesta
-    df = df[df[nome_colonna_linea].astype(str).str.strip() == linea_da_analizzare.strip()]
+    #df = df[df[nome_colonna_linea].astype(str).str.strip() == linea_da_analizzare.strip()]
 
     # Verifica se ci sono dati
     if df.empty:

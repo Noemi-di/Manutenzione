@@ -5,14 +5,14 @@ import matplotlib.pyplot as plt
 
 # Percorso file Excel
 # percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Desktop\Analisi_fermi.xlsx'
-percorso_file = r'C:\Users\Utente\Desktop\Analisi_fermi.xlsx'
+percorso_file = r'C:\Users\Utente\Desktop\Trim_01_25_Linee123.xls.xlsx'
 linea_da_analizzare = input ('Quale linea analizzo?')
 macchina_rul = input ('Per quale macchina desideri calcolare variabilità della RUL? ')
 
 # Nomi colonne
 nome_colonna_data_fermo = 'DATA FERMO'
 nome_colonna_data_turno = 'DATA TURNO'
-nome_colonna_linea = 'LINEA/FONDIT.'
+nome_colonna_linea = 'LINEA'
 nome_colonna_macchina = 'MACCHINA'
 nome_colonna_pezzo = 'PEZZO'
 nome_colonna_stato_pezzo = 'STATO PEZZO'

@@ -4,7 +4,8 @@ import matplotlib.pyplot as plt
 #import seaborn as sns #per disegnare grafici statistici
 
 # Percorso file Excel
-percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Desktop\Analisi_fermi.xlsx'
+# percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Desktop\Analisi_fermi.xlsx'
+percorso_file = r'C:\Users\Utente\Desktop\Analisi_fermi.xlsx'
 linea_da_analizzare = input ('Quale linea analizzo?')
 macchina_rul = input ('Per quale macchina desideri calcolare variabilità della RUL? ')
 

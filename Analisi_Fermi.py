@@ -10,8 +10,7 @@ linea_da_analizzare = input ('Quale linea analizzo?')
 macchina_rul = input ('Per quale macchina desideri calcolare variabilità della RUL? ')
 
 # Nomi colonne
-nome_colonna_data_fermo = 'DATA FERMO'
-nome_colonna_data_turno = 'DATA TURNO'
+nome_colonna_data = 'DATA'
 nome_colonna_linea = 'LINEA'
 nome_colonna_macchina = 'MACCHINA'
 nome_colonna_pezzo = 'PEZZO'
@@ -41,7 +40,7 @@ try:
         raise ValueError(f"Nessun dato trovato per la linea '{linea_da_analizzare}'. Interrompo l'elaborazione.")
 
     # Verifica colonne richieste
-    colonne_richieste = [nome_colonna_data_fermo, nome_colonna_data_turno, nome_colonna_linea, nome_colonna_macchina, nome_colonna_pezzo, nome_colonna_stato_pezzo, nome_colonna_classe, nome_colonna_minuti]
+    colonne_richieste = [nome_colonna_data, nome_colonna_linea, nome_colonna_macchina, nome_colonna_pezzo, nome_colonna_stato_pezzo, nome_colonna_classe, nome_colonna_minuti]
 
     for col in colonne_richieste:
         if col not in df.columns:
@@ -52,13 +51,12 @@ try:
 
     # Pulizia dei dati
     df = df.dropna(subset=[nome_colonna_minuti, nome_colonna_macchina, nome_colonna_pezzo]) # rimuove le righe con valori mancanti
-    df[nome_colonna_data_fermo] = pd.to_datetime(df[nome_colonna_data_fermo]) # Converte la colonna DATA FERMO in tipo datetime
-    df[nome_colonna_data_turno] = pd.to_datetime(df[nome_colonna_data_turno]).dt.date
+    df[nome_colonna_data] = pd.to_datetime(df[nome_colonna_data]) # Converte la colonna DATA FERMO in tipo datetime
     df[nome_colonna_minuti] = pd.to_numeric(df[nome_colonna_minuti], errors='coerce') #Conversione Tipo Numerico, gli errori diventano NaN
     df = df.dropna(subset=[nome_colonna_minuti]) # Rimuovi righe dove 'MINUTI' è diventato NaN dopo la conversione
 
     # Accorpamento per giorno
-    df['DATA ACC'] = df[nome_colonna_data_fermo].dt.date # crea una nuova colonna DATA ACC contenente solo la data senza l'ora
+    df['DATA ACC'] = df[nome_colonna_data].dt.date # crea una nuova colonna DATA ACC contenente solo la data senza l'ora
     idx_max = df.groupby(['DATA ACC', nome_colonna_macchina])[nome_colonna_minuti].idxmax() # trova l'indice della riga con i minuti di fermo maggiori
     fermi_accorpati = df.loc[idx_max].copy() # estrae le righe con il fermo più lungo. copy-per creare un nuovo dataframe
 
@@ -67,19 +65,19 @@ try:
     fermi_accorpati[nome_colonna_minuti] = fermi_accorpati.set_index(['DATA ACC', nome_colonna_macchina]).index.map(somma_minuti)
 
     # Ordina e pulizia
-    fermi_accorpati = fermi_accorpati.sort_values(by=[nome_colonna_data_fermo, nome_colonna_macchina])
+    fermi_accorpati = fermi_accorpati.sort_values(by=[nome_colonna_data, nome_colonna_macchina])
     # Elimina la colonna ausiliaria una sola volta
     fermi_accorpati.drop(columns=['DATA ACC'], inplace=True)
     # Converti la colonna 'Data turno' al solo formato data
-    fermi_accorpati[nome_colonna_data_turno] = pd.to_datetime(fermi_accorpati[nome_colonna_data_turno], errors='coerce').dt.date
+    fermi_accorpati[nome_colonna_data] = pd.to_datetime(fermi_accorpati[nome_colonna_data], errors='coerce')#.dt.date
     
     nome_foglio_scrittura_fermi_accorpati = f'fermi_linea_{linea_da_analizzare}'
 
 
     # === Periodo analizzato (basato su dati accorpati) ===
     totale_fermi = len(fermi_accorpati)
-    data_inizio = fermi_accorpati[nome_colonna_data_fermo].min()
-    data_fine = fermi_accorpati[nome_colonna_data_fermo].max()
+    data_inizio = fermi_accorpati[nome_colonna_data].min()
+    data_fine = fermi_accorpati[nome_colonna_data].max()
     durata_periodo_giorni = (data_fine - data_inizio).days + 1
 
      # === Analisi per macchina ===
@@ -119,18 +117,18 @@ try:
 
     if not df_macchina_rul_data.empty:
         # Ordina per data
-        df_macchina_rul_data = df_macchina_rul_data.sort_values(by=nome_colonna_data_fermo)
+        df_macchina_rul_data = df_macchina_rul_data.sort_values(by=nome_colonna_data)
 
         # Calcola differenza giorni
-        df_macchina_rul_data['rul'] = df_macchina_rul_data[nome_colonna_data_fermo].diff().dt.total_seconds() / (60 * 60 * 24)
+        df_macchina_rul_data['rul'] = df_macchina_rul_data[nome_colonna_data].diff().dt.total_seconds() / (60 * 60 * 24)
         df_macchina_rul_data['rul'] = df_macchina_rul_data['rul'].fillna(0).round(2)
         
         # Costruisci un DataFrame ridotto
-        df_rul_compatta = df_macchina_rul_data[[nome_colonna_data_fermo, nome_colonna_data_turno, 'rul', nome_colonna_minuti]].copy()
-        df_rul_compatta.columns = ['Data fermi','Data turno', 'rul', 'minuti']
+        df_rul_compatta = df_macchina_rul_data[[nome_colonna_data, 'rul', nome_colonna_minuti]].copy()
+        df_rul_compatta.columns = ['Data', 'rul', 'minuti']
 
         # Aggiungi una riga vuota sopra con il nome della macchina
-        macchina_header_rul = pd.DataFrame({'Data fermi': [f'Macchina: {macchina_rul}'], 'Data turno': [''], 'rul': [None], 'minuti': [None]})
+        macchina_header_rul = pd.DataFrame({'Data': [f'Macchina: {macchina_rul}'], 'Data': [''], 'rul': [None], 'minuti': [None]})
 
         df_finale_rul = pd.concat([macchina_header_rul, df_rul_compatta], ignore_index=True)
         nome_foglio_scrittura_analisi_rul_specifica = f"RUL_{macchina_rul}"

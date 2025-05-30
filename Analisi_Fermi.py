@@ -49,6 +49,33 @@ try:
 # stato processamento programma
     print("loading 25%")
 
+
+    #accorpamento per cambio produzione 
+    df_cambio = df[df[nome_colonna_macchina].str.lower().str.strip() == "cambio produzione"].copy()
+
+    if not df_cambio.empty:
+        df_cambio[nome_colonna_data] = pd.to_datetime(df_cambio[nome_colonna_data], errors='coerce')
+        df_cambio['DATA ACC'] = df_cambio[nome_colonna_data].dt.date
+
+        # Somma minuti per giorno
+        minuti_per_giorno = df_cambio.groupby('DATA ACC')[nome_colonna_minuti].sum().sort_index()
+
+        accorpati = [] #inizializza una lista vuota che conterrà i dati aggregati
+        for giorno in minuti_per_giorno.index:
+            minuti_oggi = minuti_per_giorno[giorno]
+            giorno_successivo = giorno + pd.Timedelta(days=1) #calcola la data del giorno successivo
+            minuti_domani = minuti_per_giorno.get(giorno_successivo, 0)
+            accorpati.append({
+                 'DATA_CAMBIO': giorno,
+                'MINUTI_TOT_CUMULATI': minuti_oggi + minuti_domani
+            })
+
+        df_cambi_produzione = pd.DataFrame(accorpati)
+        df_cambi_produzione.sort_values(by='DATA_CAMBIO', inplace=True)
+
+        nome_foglio_cambi_produzione = f'cambi_prod_{linea_da_analizzare}'
+
+
     # Pulizia dei dati
     df = df.dropna(subset=[nome_colonna_minuti, nome_colonna_macchina, nome_colonna_pezzo]) # rimuove le righe con valori mancanti
     df[nome_colonna_data] = pd.to_datetime(df[nome_colonna_data]) # Converte la colonna DATA FERMO in tipo datetime
@@ -161,6 +188,7 @@ try:
 
     # === Scrittura su Excel ===
     with pd.ExcelWriter(percorso_file, engine='openpyxl', mode='a') as writer:
+        df_cambi_produzione.to_excel(writer, sheet_name=nome_foglio_cambi_produzione, index=False)
         fermi_accorpati.to_excel(writer, sheet_name=nome_foglio_scrittura_fermi_accorpati, index=False)
         analisi_fermi_macchina.to_excel(writer, sheet_name=nome_foglio_scrittura_analisi_macchina, index=False)
         analisi_fermi_pezzo.to_excel(writer, sheet_name=nome_foglio_scrittura_analisi_pezzo, index=False)

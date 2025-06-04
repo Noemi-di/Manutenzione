@@ -5,7 +5,7 @@ import seaborn as sns #per disegnare grafici statistici
 
 # Percorso file Excel
 
-percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Documenti\GitHub\Manutenzione\Trim_01_25.xlsx'
+percorso_file = r'C:\Users\bsanzi\OneDrive - FIAMM Energy Technology S.p.A\Documenti\GitHub\Manutenzione\Dati_input_Trim_01_25.xlsx'
 # percorso_file = r'C:\Users\Utente\Desktop\Trim_01_25_Linee123.xls.xlsx'
 
 linea_da_analizzare = input ('Quale linea analizzo?')

@@ -224,7 +224,9 @@ try:
         nome_foglio_scrittura_fermi_accorpati,
         nome_foglio_scrittura_analisi_macchina,
         nome_foglio_scrittura_analisi_pezzo,
-        nome_foglio_scrittura_analisi_classe
+        nome_foglio_scrittura_analisi_classe,
+        nome_foglio_cambi_produzione
+
     
     ]
     if 'df_finale_rul' in locals(): # Rimuovi il foglio RUL specifico solo se è stato creato
